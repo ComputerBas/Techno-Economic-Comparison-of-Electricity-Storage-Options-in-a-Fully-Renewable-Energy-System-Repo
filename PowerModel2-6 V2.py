@@ -7,7 +7,7 @@ Created on Thu Nov 17 13:24:58 2022
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import colors
-from matplotlib import cm
+from matplotlib import colormaps as cm
 import pandas as pd
 from EPEX_import3 import PP_AVG_adv
 import warnings
@@ -207,10 +207,13 @@ for k in range(6):
                 mintech[k,i,j] =  None
             
             else:
-                mintech[k,i,j] =  LCOStemp.index(minval[k,i,j])  
+                mintech[k,i,j] =  LCOStemp.index(minval[k,i,j]) 
                 
                 valarr = [True]*len(Tech_names)
-                valarr[int(mintech[k,i,j])] = False
+                valarr[int(mintech[k,i,j])] = False 
+                
+                if k == 3 and mintech[k,i,j] == 8: 
+                    mintech[k,i,j] += 1
             
             if np.isnan(list(compress(LCOStemp, valarr))).all() == False:
                 secminval[k,i,j] = np.nanmin(list(compress(LCOStemp, valarr)))
@@ -230,199 +233,23 @@ ndiff = (diff*20).round()/20
 
 nndiff = np.where(ndiff < 0.15, ndiff, (diff*5).round()/5)
 
-# #Min LCOS
-
-# plt.figure(len(Tech_names)+1)
-# fig, (ax1, ax2) = plt.subplots(1, 2, figsize = figsize_uni)
-# ima = ax1.contourf(minval, levels= levels, vmin = minlcos, vmax = maxlcos, norm=colors.LogNorm())
-# if PP_advanced == True:
-#     ax1.set_title("Minimum LCOS for tech considered - RLPCP Algorithm\n ROI = " + str(str(ROI_in)))
-# else:
-#     ax1.set_title("Minimum LCOS for tech considered - Buy-in price fixed at: " + str(PP_fixprice) + "$/MWh \n ROI = " + str(str(ROI_in)))
-#     ax1.contour(LCOEimportarr[0,:,:],[PP_fixprice],colors = "red") #Li
-#     ax1.contour(LCOEimportarr[7,:,:],[PP_fixprice],colors = "red") #Hy
-#     ax1.legend()
-# ax1.set_ylabel("E/P ratio or discharge time [h]")
-# ax1.set_xlabel("Yearly cycles [#]")
-# ax1.set_xticks(np.linspace(0,res-1,5), [1,10,100,1000,10000])
-# ax1.set_yticks(np.linspace(0,res-1,5), [0.1,1,10,100,1000])
-# # ax1.clim(0.1,10)
-# plt.colorbar(ima,label = "LCOS [$/kWh]", ax = ax1)
-
-
-
-# imb= plt.contourf(minval[1,:,:],levels = levels, vmin = minlcos, vmax = maxlcos, norm=colors.LogNorm())
-
-# if PP_advanced == True:
-#     ax2.set_title("Minimum LCOS for tech considered - RLPCP Algorithm \n Geographically independant\n ROI = " + str(str(ROI_in)))
-# else:
-#     ax2.set_title("Minimum LCOS for tech considered - Buy-in price fixed at: " + str(PP_fixprice) + "$/MWh \n Geographically independant\n ROI = " + str(str(ROI_in)))
-#     ax2.contour(LCOEimportarr[0,:,:],[PP_fixprice],colors = "red") #Li
-#     ax2.contour(LCOEimportarr[7,:,:],[PP_fixprice],colors = "red") #Hy
-#     ax2.legend()
-# ax2.set_ylabel("E/P ratio or discharge time [h]")
-# ax2.set_xlabel("Yearly cycles [#]")
-# ax2.set_xticks(np.linspace(0,res-1,5), [1,10,100,1000,10000])
-# ax2.set_yticks(np.linspace(0,res-1,5), [0.1,1,10,100,1000])
-# plt.colorbar(imb,label = "LCOS [$/kWh]", ax=ax2)
-# # ax2.set_clim(0.1,10)
-
-
 def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
     new_cmap = colors.LinearSegmentedColormap.from_list(
         'trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
         cmap(np.linspace(minval, maxval, n)))
     return new_cmap
 
-# #Best Tech
-# plt.figure(len(Tech_names)+2)
-# fig, (ax3, ax4) = plt.subplots(1, 2, figsize = figsize_uni)
-# cmap = cm.get_cmap('tab20')
-
-# ima = ax3.imshow(mintech, cmap = truncate_colormap(cmap,0,(len(Tech_names)/20)), origin='lower', vmin=(-0.5), vmax=(len(Tech_names)-0.5), interpolation=None)
-# if PP_advanced == True:
-#     ax3.set_title("Cheapest Tech \n RLPCP Algorithm\n ROI = " + str(str(ROI_in)))
-# else:
-#     ax3.set_title("Cheapest Tech \n Buy-in fixed at: "+ str(PP_fixprice)+ "$/MWh \n ROI = " + str(str(ROI_in)))
-# ax3.set_ylabel("E/P ratio or discharge time [h]")
-# ax3.set_xlabel("Yearly cycles [#]")
-# ax3.set_yticks(np.linspace(0,res-1,7), [0.25,1,4,16,64,256,1024])
-# ax3.set_xticks(np.linspace(0,res-1,5), [1,10,100,1000,10000])
-# cbar = fig.colorbar(ima, ax = ax3, ticks= [n for n in range(len(Tech_names))])
-# cbar.ax.set_yticklabels(Tech_names)
-
-
-# imb = ax4.imshow(mintech2, cmap = truncate_colormap(cmap,0,(len(Tech_names[geoidx])/20)), origin='lower', vmin=(-0.5), vmax=(len(Tech_names[geoidx])-0.5), interpolation=None)
-# if PP_advanced == True:
-#     ax4.set_title("Cheapest Tech \n RLPCP Algorithm \n Geographically independant\n ROI = " + str(str(ROI_in)))
-# else:
-#     ax4.set_title("Cheapest Tech \n Buy-in fixed at: "+ str(PP_fixprice) + "$/MWh \n Geographically independant\n ROI = " + str(str(ROI_in)))
-# ax4.set_ylabel("E/P ratio or discharge time [h]")
-# ax4.set_xlabel("Yearly cycles [#]")
-# ax4.set_yticks(np.linspace(0,res-1,7), [0.25,1,4,16,64,256,1024])
-# ax4.set_xticks(np.linspace(0,res-1,5), [1,10,100,1000,10000])
-# cbar = fig.colorbar(imb, ax = ax4, ticks= [n for n in range(len(Tech_names[geoidx]))])
-# cbar.ax.set_yticklabels(Tech_names[geoidx])
-
-# #Second best tech
-# plt.figure(len(Tech_names)+3)
-# fig, (ax3, ax4) = plt.subplots(1, 2, figsize = figsize_uni)
-# cmap = cm.get_cmap('tab20')
-
-# ima = ax3.imshow(secmintech, cmap = truncate_colormap(cmap,0,(len(Tech_names)/20)), origin='lower', vmin=(-0.5), vmax=(len(Tech_names)-0.5), interpolation=None)
-# if PP_advanced == True:
-#     ax3.set_title("2nd cheapest Tech \n RLPCP Algorithm \n ROI = " + str(str(ROI_in)))
-# else:
-#     ax3.set_title("Cheapest Tech \n Buy-in fixed at: "+ str(PP_fixprice)+ "$/MWh \n ROI = " + str(str(ROI_in)))
-# ax3.set_ylabel("E/P ratio or discharge time [h]")
-# ax3.set_xlabel("Yearly cycles [#]")
-# ax3.set_yticks(np.linspace(0,res-1,7), [0.25,1,4,16,64,256,1024])
-# ax3.set_xticks(np.linspace(0,res-1,5), [1,10,100,1000,10000])
-# cbar = fig.colorbar(ima, ax = ax3, ticks= [n for n in range(len(Tech_names))])
-# cbar.ax.set_yticklabels(Tech_names)
-
-
-# imb = ax4.imshow(secmintech2, cmap = truncate_colormap(cmap,0,(len(Tech_names[geoidx])/20)), origin='lower', vmin=(-0.5), vmax=(len(Tech_names[geoidx])-0.5), interpolation=None)
-# if PP_advanced == True:
-#     ax4.set_title("2nd cheapest Tech \n RLPCP Algorithm \n Geographically independant \n ROI = " + str(str(ROI_in)))
-# else:
-#     ax4.set_title("Cheapest Tech \n Buy-in fixed at: "+ str(PP_fixprice) + "$/MWh \n Geographically independant\n ROI = " + str(str(ROI_in)))
-# ax4.set_ylabel("E/P ratio or discharge time [h]")
-# ax4.set_xlabel("Yearly cycles [#]")
-# ax4.set_yticks(np.linspace(0,res-1,7), [0.25,1,4,16,64,256,1024])
-# ax4.set_xticks(np.linspace(0,res-1,5), [1,10,100,1000,10000])
-# cbar = fig.colorbar(imb, ax = ax4, ticks= [n for n in range(len(Tech_names[geoidx]))])
-# cbar.ax.set_yticklabels(Tech_names[geoidx])
-
-# #second LCOS
-
-
-# plt.figure(len(Tech_names)+4)
-# fig, (ax1, ax2) = plt.subplots(1, 2, figsize = figsize_uni)
-# ima = ax1.contourf(secminval, levels= levels, vmin = minlcos, vmax = maxlcos, norm=colors.LogNorm())
-# if PP_advanced == True:
-#     ax1.set_title("Minimum LCOS for tech considered - RLPCP Algorithm\n ROI = " + str(str(ROI_in)))
-# else:
-#     ax1.set_title("Minimum LCOS for tech considered - Buy-in price fixed at: " + str(PP_fixprice) + "$/MWh \n ROI = " + str(str(ROI_in)))
-#     # ax1.contour(LCOEimportarr[0,:,:],[PP_fixprice],colors = "orange") #Li
-#     # ax1.contour(LCOEimportarr[7,:,:],[PP_fixprice],colors = "orange") #Hy
-#     ax1.legend()
-# ax1.set_ylabel("E/P ratio or discharge time [h]")
-# ax1.set_xlabel("Yearly cycles [#]")
-# ax1.set_xticks(np.linspace(0,res-1,5), [1,10,100,1000,10000])
-# ax1.set_yticks(np.linspace(0,res-1,5), [0.1,1,10,100,1000])
-# # ax1.clim(0.1,10)
-# plt.colorbar(ima,label = "LCOS [$/kWh]", ax = ax1)
-
-
-
-# imb= plt.contourf(secminval[1,:,:],levels = levels, vmin = minlcos, vmax = maxlcos, norm=colors.LogNorm())
-
-# if PP_advanced == True:
-#     ax2.set_title("Minimum LCOS for tech considered - RLPCP Algorithm \n Geographically independant\n ROI = " + str(str(ROI_in)))
-# else:
-#     ax2.set_title("Minimum LCOS for tech considered - Buy-in price fixed at: " + str(PP_fixprice) + "$/MWh \n Geographically independant")
-#     # ax2.contour(LCOEimportarr[0,:,:],[PP_fixprice],colors = "orange") #Li
-#     # ax2.contour(LCOEimportarr[7,:,:],[PP_fixprice],colors = "orange") #Hy
-#     ax2.legend()
-# ax2.set_ylabel("E/P ratio or discharge time [h]")
-# ax2.set_xlabel("Yearly cycles [#]")
-# ax2.set_xticks(np.linspace(0,res-1,5), [1,10,100,1000,10000])
-# ax2.set_yticks(np.linspace(0,res-1,5), [0.1,1,10,100,1000])
-# plt.colorbar(imb,label = "LCOS [$/kWh]", ax=ax2)
-# # ax2.set_clim(0.1,10)
-
-# #difference LCOS
-# levels2 = np.linspace(0,1,11)
-# plt.figure(len(Tech_names)+4)
-# fig, (ax1, ax2) = plt.subplots(1, 2, figsize = figsize_uni)
-# ima = ax1.contourf(np.where(diff[0,:,:]==0,np.nan,diff[0,:,:]), levels = levels2)
-# if PP_advanced == True:
-#     ax1.set_title("Difference between best and second-best LCOS \n ROI = " + str(str(ROI_in)))
-# else:
-#     ax1.set_title("Difference between best and second-best LCOS - Buy-in price fixed at: " + str(PP_fixprice) + "$/MWh \n ROI = " + str(str(ROI_in)))
-#     ax1.contour(LCOEimportarr[0,:,:],[PP_fixprice],colors = "orange") #Li
-#     ax1.contour(LCOEimportarr[7,:,:],[PP_fixprice],colors = "orange") #Hy
-#     ax1.legend()
-# ax1.set_ylabel("E/P ratio or discharge time [h]")
-# ax1.set_xlabel("Yearly cycles [#]")
-# ax1.set_xticks(np.linspace(0,res-1,5), [1,10,100,1000,10000])
-# ax1.set_yticks(np.linspace(0,res-1,5), [0.1,1,10,100,1000])
-# # ax1.clim(0.1,10)
-# plt.colorbar(ima,label = "Difference [-]", ax = ax1)
-
-
-
-# imb= plt.contourf(np.where(diff[1,:,:]==0,np.nan,diff[1,:,:]), levels = levels2)
-
-# if PP_advanced == True:
-#     ax2.set_title("Difference between best and second-best LCOSl \n Geographically independant \n ROI = " + str(str(ROI_in)))
-# else:
-#     ax2.set_title("Difference between best and second-best LCOS - Buy-in price fixed at: " + str(PP_fixprice) + "$/MWh \n Geographically independant")
-#     ax2.contour(LCOEimportarr[0,:,:],[PP_fixprice],colors = "orange") #Li
-#     ax2.contour(LCOEimportarr[7,:,:],[PP_fixprice],colors = "orange") #Hy
-#     ax2.legend()
-# ax2.set_ylabel("E/P ratio or discharge time [h]")
-# ax2.set_xlabel("Yearly cycles [#]")
-# ax2.set_xticks(np.linspace(0,res-1,5), [1,10,100,1000,10000])
-# ax2.set_yticks(np.linspace(0,res-1,5), [0.1,1,10,100,1000])
-# plt.colorbar(imb,label = "Difference [-]", ax=ax2)
-
-
-# #New Colors
-
-# PHS = np.where(mintech == 9, 2, mintech)
-# PTES = np.where(mintech == 6, 3, np.where(mintech == 9, 2, mintech))
+"--------------Min Tech-----------------"
 
 Colfac = 0.8
 
 plt.figure(len(Tech_names)+2)
-fig, ((ax3, ax4) ,(ax5, ax6) , (ax7,ax8)) = plt.subplots(3, 2, figsize = (13,13), sharex=True, sharey=True)
-cmap2 = cm.get_cmap('tab10')
+fig, ((ax0, ax1) ,(ax2, ax3) , (ax4, ax5)) = plt.subplots(3, 2, figsize = (13,13), sharex=True, sharey=True)
+cmap2 = cm['tab10']
+plt.subplots_adjust(left=0.1, bottom=None, right=0.6, top=None, wspace=None, hspace=None)
 
-plotnr = ["ax3","ax4","ax5","ax6","ax7", "ax8", "ax9", "ax10", "ax11"]
 
-fig.text(0.5, 0.04, "Yearly cycles [#]", ha='center')
+fig.text(0.5, 0.08, "Yearly cycles [#]", ha='center')
 fig.text(0.04, 0.5, "E/P ratio or discharge time [h]", va='center', rotation='vertical')
 
 if PP_advanced == True:
@@ -430,66 +257,60 @@ if PP_advanced == True:
 else:
     plt.suptitle("Cheapest Tech \n Buy-in fixed at: "+ str(PP_fixprice)+ "$/MWh \n ROI = " + str(str(ROI_in)))
 
-topchoices2 = []
 
+#Replacements
+replacements = [[9,2],[6,3],[14,4],[8,5],[12,6]]
 
-for k in range(6):
-    mintecha = np.where(mintech[k,:,:] == 12,6,np.where(mintech[k,:,:] == 8,5,np.where(mintech[k,:,:] == 14,4,np.where(mintech[k,:,:] == 6, 3, np.where(mintech[k,:,:] == 9, 2, mintech[k,:,:])))))
-    mintechab = np.where(mintecha < 0, np.nan,np.where(mintecha > 6, np.nan, mintecha).astype(int))
+for k, ax in enumerate([ax0,ax1,ax2,ax3,ax4,ax5]):
+    mintecha = mintech[k,:,:]
+    for r in replacements:
+        mintecha = np.where(mintecha == r[0],r[1],mintecha)        
+    mintechab = np.where(mintecha < 0, np.nan,np.where(mintecha>6, np.nan, mintecha))
     
-    topchoices2.append(np.unique(mintechab))
-    globals()[plotnr[k]].set_title(Case[k])
+    ax.set_title(Case[k])
     
-    if k == 0:
-        ima = globals()[plotnr[k]].imshow(mintechab, cmap = truncate_colormap(cmap2,0,0.699), origin='lower', vmin=(-0.5), vmax=(7-0.5), interpolation=None, alpha = nndiff[k]**Colfac)
-    im = globals()[plotnr[k]].imshow(mintechab, cmap = truncate_colormap(cmap2,0,0.699), origin='lower', vmin=(-0.5), vmax=(7-0.5), interpolation=None, alpha = nndiff[k]**Colfac)
+    im = ax.imshow(mintechab, cmap = truncate_colormap(cmap2,0,0.699), origin='lower', vmin=(-0.5), vmax=(7-0.5), interpolation=None, alpha = nndiff[k]**Colfac)
 
-    globals()[plotnr[k]].set_yticks(np.linspace(0,res-1,7), [0.25,1,4,16,64,256,1024])
-    globals()[plotnr[k]].set_xticks(np.linspace(0,res-1,5), [1,10,100,1000,10000])
-    for i in range(5):
-        globals()[plotnr[k]].plot(np.interp(pointsYC[i],YCycles_arr,np.linspace(0,199,200)), np.interp(pointsED[i],EP_arr,np.linspace(0,199,200)),color = "black",marker = "o")
-        globals()[plotnr[k]].annotate(str(i+1),xy = (np.interp(pointsYC[i],YCycles_arr,np.linspace(0,199,200)), np.interp(pointsED[i],EP_arr,np.linspace(0,199,200))),color = "black", xytext=(5, -4.5), textcoords='offset points')        
+    ax.set_yticks(np.linspace(0,res-1,7), [0.25,1,4,16,64,256,1024])
+    ax.set_xticks(np.linspace(0,res-1,5), [1,10,100,1000,10000])
+    
+    # for i in range(5):
+    #     ax.plot(np.interp(pointsYC[i],YCycles_arr,np.linspace(0,199,200)), np.interp(pointsED[i],EP_arr,np.linspace(0,199,200)),color = "black",marker = "o")
+    #     ax.annotate(str(i+1),xy = (np.interp(pointsYC[i],YCycles_arr,np.linspace(0,199,200)), np.interp(pointsED[i],EP_arr,np.linspace(0,199,200))),color = "black", xytext=(5, -4.5), textcoords='offset points')        
+
+
+cb_ax = fig.add_axes([0.66, 0.375, 0.25, 0.25])
+colorbarplot = np.array([[0,0,0,0,0,0],[1.1,1,1,1,1,1],[2,2,2,2,2,2],[3,3,3,3,3,3],[4,4,4,4,4,4],[5,5,5,5,5,5],[6.1,6,6,6,6,6]])
+alphaplot = np.array([[0.8,0.6,0.4,0.2,0.1,0.05],[0.8,0.6,0.4,0.2,0.1,0.05],[0.8,0.6,0.4,0.2,0.1,0.05],[0.8,0.6,0.4,0.2,0.1,0.05],[0.8,0.6,0.4,0.2,0.1,0.05],[0.8,0.6,0.4,0.2,0.1,0.05],[0.8,0.6,0.4,0.2,0.1,0.05]])
+cb_ax.imshow(colorbarplot, cmap = truncate_colormap(cmap2,0,0.699), alpha = alphaplot**Colfac)
+cb_ax.set_title("LCOS difference \n with second cheapest solution")
+cb_ax.set_xticks(ticks = np.linspace(0,5,6),labels = ["80%","60%","40%","20%","10%","5%"])
+cb_ax.set_yticks(ticks = np.linspace(0,6,7),labels = [Tech_names[0],Tech_names[1],Tech_names[9],Tech_names[6],Tech_names[14],Tech_names[8],Tech_names[12]])
+
+
 plt.show()
-plt.figure(20)
-cbar = fig.colorbar(ima, ax = ax3, ticks= [a for a in range(7)] )
-cbar.ax.set_yticklabels([Tech_names[0],Tech_names[1],Tech_names[9],Tech_names[6],Tech_names[14],Tech_names[8],Tech_names[12]])
+plt.figure()
 
-colorbarplot = np.array([[0,0,0,0,0,0],[1,1,1,1,1,1],[2,2,2,2,2,2],[3,3,3,3,3,3],[4,4,4,4,4,4],[5,5,5,5,5,5],[6,6,6,6,6,6]])
-alphaplot = np.array([[0.8,0.6,0.4,0.2,0.1,0.05],[0.8,0.6,0.4,0.2,0.1,0.05],[0.8,0.6,0.4,0.2,0.1,0.05],[0.8,0.6,0.4,0.2,0.1,0.05],[0.8,0.6,0.4,0.2,0.1,0.05]])
-ax8.imshow(colorbarplot, cmap = truncate_colormap(cmap2,0,0.499), alpha = alphaplot**Colfac)
-ax8.set_title("LCOS difference \n with second cheapest solution")
-ax8.set_xticks(ticks = np.linspace(0,5,6),labels = ["80%","60%","40%","20%","10%","5%"])
-ax8.set_yticks(ticks = np.linspace(0,6,7),labels = [Tech_names[0],Tech_names[1],Tech_names[9],Tech_names[6],Tech_names[14],Tech_names[8],Tech_names[12]])
-
-"Min LCOS"
+"---------------- Min LCOS ----------------------"
 
 plt.figure(len(Tech_names)+3)
-fig, ((ax3, ax4) ,(ax5, ax6) , (ax7,ax8)) = plt.subplots(3, 2, figsize = (12,10), sharex=True, sharey=True)
+fig, ((ax0, ax1) ,(ax2, ax3) , (ax4, ax5)) = plt.subplots(3, 2, figsize = (10,12), sharex=True, sharey=True)
 
-plotnr = ["ax3","ax4","ax5","ax6","ax7", "ax8", "ax9", "ax10", "ax11"]
-
-fig.text(0.5, 0.04, "Yearly cycles [#]", ha='center')
+plt.subplots_adjust(left=0.1, bottom=None, right=0.85, top=None, wspace=None, hspace=None)
+fig.text(0.5, 0.08, "Yearly cycles [#]", ha='center')
 fig.text(0.04, 0.5, "E/P ratio or discharge time [h]", va='center', rotation='vertical')
 
+for k, ax in enumerate([ax0,ax1,ax2,ax3,ax4,ax5]):
+    ax.set_yticks(np.linspace(0,res-1,7), [0.25,1,4,16,64,256,1024])
+    ax.set_xticks(np.linspace(0,res-1,5), [1,10,100,1000,10000])
+    ax.set_title(Case[int(k)])
+    im = ax.contourf(minval[int(k)],levels=1000*levels, cmap = "plasma_r",vmin = 100, vmax=1000*maxlcos, norm=colors.LogNorm())
+
+cb_ax = fig.add_axes([0.9, 0.1, 0.04, 0.85])
+cbar = fig.colorbar(im, cax=cb_ax,label = "LCOS [$/MWh]")
+cbar.set_ticks([100,200,500,1000,2000,5000,10000])
+cbar.set_ticklabels(["100","200","500","1000","2000","5000","10000"])
 if PP_advanced == True:
-    plt.suptitle("LCOS of cheapest tech \n RLPCP Algorithm \n ROI = " + str(str(ROI_in)))
+    fig.suptitle("LCOS of cheapest tech \n RLPCP Algorithm \n ROI = " + str(str(ROI_in)))
 else:
-    plt.suptitle("LCOS of cheapest ech \n Buy-in fixed at: "+ str(PP_fixprice)+ "$/MWh \n ROI = " + str(str(ROI_in)))
-
-
-
-for k in range(6):
-    globals()[plotnr[k]].set_title(Case[k])
-    
-    if k == 0:
-        ima = globals()[plotnr[k]].contourf(minval[k],levels=1000*levels, cmap = "plasma_r", vmin=1000*minlcos, vmax=1000*maxlcos, norm=colors.LogNorm())
-    im = globals()[plotnr[k]].contourf(minval[k],levels=1000*levels, cmap = "plasma_r", origin='lower', vmin=1000*minlcos, vmax=1000*maxlcos, norm=colors.LogNorm())
-    for i in range(5):
-        globals()[plotnr[k]].plot(np.interp(pointsYC[i],YCycles_arr,np.linspace(0,199,200)), np.interp(pointsED[i],EP_arr,np.linspace(0,199,200)),color = "black",marker = "o")
-        globals()[plotnr[k]].annotate(str(i+1),xy = (np.interp(pointsYC[i],YCycles_arr,np.linspace(0,199,200)), np.interp(pointsED[i],EP_arr,np.linspace(0,199,200))),color = "black", xytext=(5, -4.5), textcoords='offset points')        
-plt.show()
-
-cb_ax = fig.add_axes([0.83, 0.1, 0.02, 0.8])
-cbar = fig.colorbar(ima, cax=cb_ax)
-
-plt.colorbar(ima,label = "LCOS [$/MWh]", ax = ax8)
+    fig.suptitle("LCOS of cheapest ech \n Buy-in fixed at: "+ str(PP_fixprice)+ "$/MWh \n ROI = " + str(str(ROI_in)))

@@ -72,7 +72,14 @@ def AVG_PP_adv_EP(EP,YCycles_arr,CharFac,EPEX_def = EPEX_import()):
             #Check when charging is started
             epexmin = min(list(compress(sumseries.copy(), idxfree)))  
             delidx = sumseries.index(epexmin)
-                    
+            
+            #Prevent double indices
+            counter = 1
+            
+            while idxfree[delidx] == False:
+                delidx = [i for i, x in enumerate(sumseries) if x == epexmin][counter]
+                counter += 1       
+                
             #Delete instances of sumseries that are not possible anymore
             idxsumdelmin = delidx-h_cycle+1
             idxsumdelmax = delidx+h_cycle
